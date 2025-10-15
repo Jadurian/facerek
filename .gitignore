@@ -20,6 +20,16 @@ uploads/
 *.db
 *.sqlite
 
+# Fotos e imágenes (datos sensibles)
+data/Fotos individuales/
+data/Fotos grupales/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.webp
+
 # IDE
 .vscode/
 .idea/
