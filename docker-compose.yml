@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: facerek_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - facerek_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: facerek_backend
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      FLASK_ENV: ${FLASK_ENV}
+      UPLOAD_FOLDER: /app/uploads
+      PYTHONIOENCODING: utf-8
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - facerek_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: facerek_frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - facerek_network
+
+volumes:
+  postgres_data:
+
+networks:
+  facerek_network:
+    driver: bridge

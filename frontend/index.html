@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FaceRek - Validador de Fotos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 FaceRek - Validador de Fotos de Campaña</h1>
+        
+        <!-- Sección de Validación -->
+        <section class="validator-section">
+            <h2>Validar Foto de Campaña</h2>
+            <div class="upload-area" id="uploadArea">
+                <p>📸 Arrastra una foto aquí o haz clic para seleccionar</p>
+                <input type="file" id="photoInput" accept="image/*" hidden>
+            </div>
+            <div id="validationResult" class="result-area"></div>
+        </section>
+
+        <!-- Sección de Gestión de Empleados -->
+        <section class="employees-section">
+            <div class="section-header">
+                <h2>Gestión de Empleados</h2>
+                <button id="addEmployeeBtn" class="btn-primary">+ Nuevo Empleado</button>
+            </div>
+            
+            <table id="employeesTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Ubicación</th>
+                        <th>Uso Imagen</th>
+                        <th>Activo</th>
+                        <th>Foto</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesBody"></tbody>
+            </table>
+        </section>
+    </div>
+
+    <!-- Modal para Agregar/Editar Empleado -->
+    <div id="employeeModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modalTitle">Nuevo Empleado</h2>
+            <form id="employeeForm">
+                <input type="hidden" id="employeeId">
+                
+                <label>Nombre:</label>
+                <input type="text" id="employeeName" required>
+                
+                <label>Ubicación:</label>
+                <select id="employeeActivo" required>
+                    <option value="CTA">CTA</option>
+                    <option value="RDA">RDA</option>
+                    <option value="Pichi">Pichi</option>
+                </select>
+                
+                <label>Uso de Imagen:</label>
+                <select id="employeeUsoImagen" required>
+                    <option value="Firmado">Firmado</option>
+                    <option value="No firmado">No firmado</option>
+                    <option value="Espera">Espera</option>
+                    <option value="No autoriza">No autoriza</option>
+                </select>
+                
+                <label>
+                    <input type="checkbox" id="employeeSigueTrabajando" checked>
+                    Sigue trabajando
+                </label>
+                
+                <label>Foto:</label>
+                <input type="file" id="employeePhoto" accept="image/*">
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn-primary">Guardar</button>
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

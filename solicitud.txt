@@ -1,0 +1,52 @@
+necesito desarrollar una solución piloto para un usuario de marketing que necesita tener alguna manera de identificar cuadno envía fotos de campaña si las fotos de las personas que envía, tanto grupales como individuales, las personas de dichas fotos siguen trabajando o no en la compañía y además si la persona firmo en conformidad la utilización de su imagen, no firmo o esta en espera aún de respuesta.
+
+La información que me dieron es un Excel con 23 registros,es decir personas y dos carpetas con fotos dentro
+
+en el Excel se dispone la información en: "Nombre"; "Foto"; "Activo" (lugar de trabajo); "Uso de Imagen" (3 opciones: "No firmado", "Firmado", "Espera"); "Sigue trabajando?" (dos opciones: "Si", "No")
+
+Además de eso me dieron una carpeta con 23 imagenes jpg que son fotos de las personas del Excel, cada nombre de cada foto es el mismo nombre de la columna del Excel y además las imágenes en su mayoría son distintas a las fotos del Excel
+
+Además me dieron otra carpeta con fotos 31 fotos donde están en distintas conformaciones las personas de las fotos individuales, los nombres de las fotos son aleatorios
+
+poseo conocimientos en Python, ia en aws, Docker-compose, devops, SQLite, PostgreSQL, mongodb, 
+
+La idea es entregar una solución piloto sencilla, pero robusta. Podes haerme preguntar como para entender la mejor maenra de entregar valor con un proyecto de estas características ya que qquiero quedar como un genio con mi jefe y en mi empresa nadie entende nada de estos temas y con muy poco puedo quedar como un absoluto genio
+
+
+
+
+
+
+Solución Piloto Simplificada:
+Stack ultra-simple:
+Backend : Flask (más simple que FastAPI, solo necesitas decoradores básicos)
+
+Frontend : HTML + JavaScript vanilla (sin React, solo drag & drop)
+
+Reconocimiento facial : face_recognition library (open source, más fácil de empezar que Rekognition)
+
+Base de datos : SQLite
+
+Todo en Docker Compose
+
+Ventajas de esta aproximación:
+
+✅ Todo corre local, sin costos de AWS
+
+✅ Flask es Python puro, muy directo
+
+✅ face_recognition es sorprendentemente preciso y fácil de usar
+
+✅ Después podés migrar a Rekognition si querés escalar
+
+✅ El "wow factor" sigue intacto
+
+Flujo simple:
+
+Usuario arrastra foto → se sube
+
+Backend detecta caras y las compara con la BD
+
+Muestra resultado visual con caras marcadas y estado de cada persona
+
+Panel admin simple para agregar/editar personas
