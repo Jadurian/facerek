@@ -4,6 +4,8 @@ const API_URL = 'http://localhost:5000/api';
 const uploadArea = document.getElementById('uploadArea');
 const photoInput = document.getElementById('photoInput');
 const validationResult = document.getElementById('validationResult');
+const imagePreview = document.getElementById('imagePreview');
+const imageCanvas = document.getElementById('imageCanvas');
 const employeesBody = document.getElementById('employeesBody');
 const employeeModal = document.getElementById('employeeModal');
 const employeeForm = document.getElementById('employeeForm');
@@ -33,6 +35,7 @@ photoInput.addEventListener('change', (e) => {
 // Validar foto
 async function validatePhoto(file) {
     validationResult.innerHTML = '<p>⏳ Procesando...</p>';
+    imagePreview.style.display = 'none';
     
     const formData = new FormData();
     formData.append('photo', file);
@@ -44,13 +47,13 @@ async function validatePhoto(file) {
         });
         
         const data = await response.json();
-        displayValidationResult(data);
+        displayValidationResult(data, file);
     } catch (error) {
         validationResult.innerHTML = '<p class="result-card result-rejected">❌ Error al procesar la foto</p>';
     }
 }
 
-function displayValidationResult(data) {
+function displayValidationResult(data, file) {
     const statusClass = `result-${data.status.toLowerCase()}`;
     const statusIcon = data.status === 'OK' ? '✅' : data.status === 'WARNING' ? '⚠️' : '❌';
     
@@ -74,9 +77,59 @@ function displayValidationResult(data) {
             `;
         });
         html += '</div>';
+        
+        // Dibujar imagen con caras detectadas
+        drawImageWithFaces(file, data.detected_faces);
     }
     
     validationResult.innerHTML = html;
+}
+
+function drawImageWithFaces(file, faces) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const ctx = imageCanvas.getContext('2d');
+            const maxWidth = 800;
+            const scale = Math.min(1, maxWidth / img.width);
+            
+            imageCanvas.width = img.width * scale;
+            imageCanvas.height = img.height * scale;
+            
+            ctx.drawImage(img, 0, 0, imageCanvas.width, imageCanvas.height);
+            
+            faces.forEach(face => {
+                if (face.location) {
+                    const [top, right, bottom, left] = face.location;
+                    const x = left * scale;
+                    const y = top * scale;
+                    const width = (right - left) * scale;
+                    const height = (bottom - top) * scale;
+                    
+                    // Color según estado
+                    const color = face.status === 'OK' ? '#28a745' : 
+                                  face.status === 'WARNING' ? '#ffc107' : '#dc3545';
+                    
+                    // Rectángulo
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(x, y, width, height);
+                    
+                    // Etiqueta
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y - 30, width, 30);
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillText(face.name, x + 5, y - 8);
+                }
+            });
+            
+            imagePreview.style.display = 'block';
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 // Cargar empleados

@@ -205,7 +205,8 @@ def validate_photo():
                     'name': employee.nombre,
                     'status': status,
                     'reason': reason,
-                    'confidence': round(confidence, 2)
+                    'confidence': round(confidence, 2),
+                    'location': location
                 })
             else:
                 print(f"[WARNING] Cara {idx+1} no reconocida", flush=True)
@@ -213,7 +214,8 @@ def validate_photo():
                     'name': 'Desconocido',
                     'status': 'WARNING',
                     'reason': 'No está en la base de datos',
-                    'confidence': None
+                    'confidence': None,
+                    'location': location
                 })
                 if overall_status != "REJECTED":
                     overall_status = "WARNING"
