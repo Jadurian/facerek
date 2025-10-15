@@ -3,6 +3,7 @@ from flask_cors import CORS
 from database import init_db, get_db
 from models import Employee, EmployeePhoto, CampaignPhoto, PhotoDetection
 from face_service import get_face_encoding, get_face_encoding_from_bytes, compare_faces
+from cache_service import encoding_cache
 import os
 import json
 from datetime import datetime
@@ -92,6 +93,9 @@ def delete_employee(employee_id):
         db.close()
         return jsonify({'error': 'Empleado no encontrado'}), 404
     
+    # Invalidar caché
+    encoding_cache.invalidate(employee_id)
+    
     db.delete(employee)
     db.commit()
     db.close()
@@ -131,8 +135,11 @@ def upload_employee_photo(employee_id):
     )
     db.add(photo)
     db.commit()
-    db.close()
     
+    # Invalidar caché para forzar recarga
+    encoding_cache.invalidate(employee_id)
+    
+    db.close()
     return jsonify({'message': 'Foto actualizada'})
 
 @app.route('/api/validate-photo', methods=['POST'])
@@ -148,18 +155,27 @@ def validate_photo():
     db = get_db()
     
     try:
-        # Obtener todos los encodings de empleados
-        employees = db.query(Employee).all()
+        # Obtener todos los encodings de empleados (con caché)
+        employees = db.query(Employee).filter(Employee.sigue_trabajando == True).all()
         known_encodings = []
         employee_map = []
         
         for emp in employees:
             for photo in emp.photos:
                 if photo.face_encoding:
-                    known_encodings.append(pickle.loads(photo.face_encoding))
+                    # Intentar obtener del caché
+                    cached_encoding = encoding_cache.get(emp.id)
+                    if cached_encoding is not None:
+                        encoding = cached_encoding
+                    else:
+                        # No está en caché, cargar y guardar
+                        encoding = pickle.loads(photo.face_encoding)
+                        encoding_cache.set(emp.id, encoding)
+                    
+                    known_encodings.append(encoding)
                     employee_map.append(emp)
         
-        print(f"[INFO] Empleados en BD: {len(known_encodings)}", flush=True)
+        print(f"[INFO] Empleados en BD: {len(known_encodings)} | Caché: {encoding_cache.get_stats()}", flush=True)
         
         # Detectar caras en la foto subida
         print("[INFO] Detectando caras...", flush=True)
@@ -273,6 +289,17 @@ def debug_employees():
         })
     db.close()
     return jsonify(result)
+
+@app.route('/api/cache/stats', methods=['GET'])
+def cache_stats():
+    """Retorna estadísticas del caché"""
+    return jsonify(encoding_cache.get_stats())
+
+@app.route('/api/cache/clear', methods=['POST'])
+def clear_cache():
+    """Limpia el caché manualmente"""
+    encoding_cache.clear()
+    return jsonify({'message': 'Caché limpiado exitosamente'})
 
 if __name__ == '__main__':
     init_db()

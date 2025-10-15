@@ -7,12 +7,15 @@ Base = declarative_base()
 
 class Employee(Base):
     __tablename__ = 'employees'
+    __table_args__ = (
+        {'extend_existing': True}
+    )
     
     id = Column(Integer, primary_key=True)
-    nombre = Column(String(200), nullable=False)
-    activo = Column(String(50))  # CTA, RDA, Pichi
-    uso_imagen = Column(String(50))  # Firmado, No firmado, No autoriza, Espera
-    sigue_trabajando = Column(Boolean, default=True)
+    nombre = Column(String(200), nullable=False, index=True)
+    activo = Column(String(50), index=True)  # CTA, RDA, Pichi
+    uso_imagen = Column(String(50), index=True)  # Firmado, No firmado, No autoriza, Espera
+    sigue_trabajando = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -20,23 +23,29 @@ class Employee(Base):
 
 class EmployeePhoto(Base):
     __tablename__ = 'employee_photos'
+    __table_args__ = (
+        {'extend_existing': True}
+    )
     
     id = Column(Integer, primary_key=True)
-    employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False)
+    employee_id = Column(Integer, ForeignKey('employees.id'), nullable=False, index=True)
     file_path = Column(String(500), nullable=False)
     face_encoding = Column(LargeBinary)
-    is_primary = Column(Boolean, default=True)
+    is_primary = Column(Boolean, default=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     employee = relationship("Employee", back_populates="photos")
 
 class CampaignPhoto(Base):
     __tablename__ = 'campaign_photos'
+    __table_args__ = (
+        {'extend_existing': True}
+    )
     
     id = Column(Integer, primary_key=True)
     file_path = Column(String(500), nullable=False)
-    upload_date = Column(DateTime, default=datetime.utcnow)
-    validation_status = Column(String(50))  # OK, WARNING, REJECTED
+    upload_date = Column(DateTime, default=datetime.utcnow, index=True)
+    validation_status = Column(String(50), index=True)  # OK, WARNING, REJECTED
     validation_details = Column(Text)  # JSON string
     
     detections = relationship("PhotoDetection", back_populates="campaign_photo", cascade="all, delete-orphan")
