@@ -91,7 +91,7 @@ function drawImageWithFaces(file, faces) {
         const img = new Image();
         img.onload = () => {
             const ctx = imageCanvas.getContext('2d');
-            const maxWidth = 800;
+            const maxWidth = 600;
             const scale = Math.min(1, maxWidth / img.width);
             
             imageCanvas.width = img.width * scale;
@@ -116,12 +116,16 @@ function drawImageWithFaces(file, faces) {
                     ctx.lineWidth = 3;
                     ctx.strokeRect(x, y, width, height);
                     
-                    // Etiqueta
+                    // Etiqueta con ancho dinámico
+                    ctx.font = 'bold 14px Arial';
+                    const textWidth = ctx.measureText(face.name).width;
+                    const labelWidth = Math.max(textWidth + 10, width);
+                    const labelHeight = 25;
+                    
                     ctx.fillStyle = color;
-                    ctx.fillRect(x, y - 30, width, 30);
+                    ctx.fillRect(x, y - labelHeight, labelWidth, labelHeight);
                     ctx.fillStyle = 'white';
-                    ctx.font = 'bold 16px Arial';
-                    ctx.fillText(face.name, x + 5, y - 8);
+                    ctx.fillText(face.name, x + 5, y - 7);
                 }
             });
             
